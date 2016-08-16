@@ -1,0 +1,22 @@
+{
+  "name": "math-heart-js",
+  "version": "1.0.0",
+  "description": "Small canvas demo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/trsdln/math-heart-js.git"
+  },
+  "author": "trsdln",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/trsdln/math-heart-js/issues"
+  },
+  "homepage": "https://github.com/trsdln/math-heart-js#readme",
+  "dependencies": {
+    "ocanvas": "^2.8.5"
+  }
+}

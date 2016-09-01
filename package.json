@@ -18,6 +18,8 @@
   "homepage": "https://github.com/trsdln/math-heart-js#readme",
   "dependencies": {
     "ocanvas": "^2.8.5",
-    "ramda": "^0.22.1"
+    "ramda": "^0.22.1",
+    "react": "^15.3.1",
+    "react-dom": "^15.3.1"
   }
 }

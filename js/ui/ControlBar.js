@@ -1,16 +1,33 @@
 import React from 'react';
 
+import { ConfigurationInputEntry } from './ConfigurationInputEntry';
+
+
 export class ControlBar extends React.Component {
-  constructor(props){
+  static propTypes = {
+    onConfigSubmit: React.PropTypes.func,
+  };
+
+  constructor(props) {
     super(props);
   }
 
+  onConfigEntryChange(event) {
+    console.log('change', event.target.name, event.target.value);
+
+    // todo: call cb fn here
+    // this.props.onConfigSubmit(newConfig)
+  }
+
   render() {
+    // todo: throttle change function
+    const throttledConfigChange = this.onConfigEntryChange.bind(this);
+
     return (
       <div className="control-bar">
-        <input type="number" placeholder="Lines"/>
-        <input type="number" placeholder="Sectors"/>
-        <input type="number" placeholder="Multiplier"/>
+        <ConfigurationInputEntry placeholder="Lines" name="lines" onChange={throttledConfigChange}/>
+        <ConfigurationInputEntry placeholder="Sectors" name="sectors" onChange={throttledConfigChange}/>
+        <ConfigurationInputEntry placeholder="Multiplier" name="multiplier" onChange={throttledConfigChange}/>
       </div>
     );
   }

@@ -7,11 +7,15 @@ export class MainAppView extends React.Component {
     super(props);
   }
 
+  onConfigSubmit(event) {
+    console.log('config submit', event);
+  }
+
   render() {
     return (
       <div className="app-wrapper">
-        <ControlBar/>
-        <HeartDisplay/>
+        <ControlBar onConfigSubmit={this.onConfigSubmit.bind(this)}/>
+        <HeartDisplay />
       </div>
     );
   }

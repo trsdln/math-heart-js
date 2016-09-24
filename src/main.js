@@ -1,3 +1,6 @@
+import R from 'ramda';
+import oCanvas from 'ocanvas';
+
 // math stuff
 
 function calculateAngle(number, sectorsCount) {

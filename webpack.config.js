@@ -13,13 +13,12 @@ module.exports = {
         loader: 'babel-loader',
         query: {
           presets: ['es2015', 'stage-0'],
-          plugins: ['transform-class-properties']
         }
       }
     ]
   },
   output: {
-    path: path.join(__dirname, 'build'),
+    path: __dirname,
     filename: 'bundle.js'
   }
 };

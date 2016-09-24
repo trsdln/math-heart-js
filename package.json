@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/trsdln/math-heart-js#readme",
   "dependencies": {
+    "@cycle/rx-run": "^7.0.1",
     "ocanvas": "^2.8.5",
-    "ramda": "^0.22.1"
+    "ramda": "^0.22.1",
+    "rx": "^4.1.0"
   }
 }

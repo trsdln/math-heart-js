@@ -13,6 +13,10 @@ module.exports = {
         loader: 'babel-loader',
         query: {
           presets: ['es2015', 'stage-0'],
+          plugins: [
+            'syntax-jsx',
+            ['transform-react-jsx', {'pragma': 'html'}]
+          ]
         }
       }
     ]

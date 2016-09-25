@@ -28,9 +28,11 @@
   "dependencies": {
     "@cycle/dom": "^12.2.5",
     "@cycle/rx-run": "^7.0.1",
+    "babel-plugin-transform-react-jsx": "^6.8.0",
     "ocanvas": "^2.8.5",
     "ramda": "^0.22.1",
     "rx": "^4.1.0",
+    "snabbdom-jsx": "^0.3.1",
     "xstream": "^6.3.2"
   }
 }

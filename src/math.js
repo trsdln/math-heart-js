@@ -17,6 +17,14 @@ export const getPointByNumber = R.curry(function (sectorsCount, radius, number) 
 
 // adjustToCircleCenter :: Number -> Point -> Point
 // Point = {x: Number, y: Number}
-export function adjustPointToCircleCenter(shiftDistance) {
-  return R.evolve({x: R.add(shiftDistance), y: R.add(shiftDistance)});
+export function adjustPointToCircleCenter(centerPosition) {
+  return R.evolve({x: R.add(centerPosition), y: R.add(centerPosition)});
+}
+
+// createNumberToPointConverter :: (Number, Number, Number) -> Number -> Point
+export function createNumberToPointConverter(centerPosition, sectorsCount, radius) {
+  return R.compose(
+    adjustPointToCircleCenter(centerPosition),
+    getPointByNumber(sectorsCount, radius)
+  );
 }

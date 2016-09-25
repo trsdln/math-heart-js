@@ -4,7 +4,7 @@ export function point(x, y) {
   return {x, y};
 }
 
-export function basicFigure(type, defaultProps, props) {
+function basicFigure(type, defaultProps, props) {
   return {
     type,
     props: Object.assign(defaultProps, props)
@@ -27,6 +27,10 @@ export function text(props) {
   }, props);
 }
 
+export function resetCanvas() {
+  return basicFigure('reset', {}, {});
+}
+
 export function makeOCanvasDriver(elementSelector) {
   const currentCanvas = oCanvas.create({
     canvas: elementSelector,
@@ -40,9 +44,10 @@ export function makeOCanvasDriver(elementSelector) {
 
   return function (canvasFigures$) {
     canvasFigures$.subscribe(figures => {
-      currentCanvas.reset();
       if (figures instanceof Array) {
         figures.forEach(drawFigure);
+      } else if (figures.type === 'reset') {
+        currentCanvas.reset();
       } else {
         drawFigure(figures);
       }

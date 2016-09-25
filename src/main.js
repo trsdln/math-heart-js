@@ -1,31 +1,14 @@
 import Rx from 'rx';
 import R from 'ramda';
-import { html } from 'snabbdom-jsx';
 import { makeDOMDriver } from '@cycle/dom';
 import { run } from '@cycle/rx-run';
 
-import { point, line, text, ellipse, makeOCanvasDriver } from './ocanvas-driver';
-import { adjustPointToCircleCenter, getPointByNumber } from './math';
+import { controlView } from './control-view';
 
+import { resetCanvas, makeOCanvasDriver } from './ocanvas-driver';
+import { createNumberToPointConverter } from './math';
+import { createSectorLine, createSectorLabel, createBigCircle } from './draw';
 
-// source: read parameters
-// logic: calculate all points
-// sink: draw the lines
-
-function mainView({sectorsCount, multiplier}) {
-  return (
-    <div>
-      <div>
-        <label>Sectors: {sectorsCount}</label>
-        <input className="sectors-count" type="range" min="1" max="100" value={sectorsCount}/>
-      </div>
-      <div>
-        <label>Multiplier: {multiplier}</label>
-        <input className="multiplier" type="range" min="1" max="10" value={multiplier}/>
-      </div>
-    </div>
-  );
-}
 
 // intValueByEvent :: Event -> Number
 // Event = Object
@@ -45,48 +28,35 @@ function main(sources) {
   );
 
   return {
-    DOM: state$.map(mainView),
-    oCanvas: state$.debounce(500).map(({sectorsCount, multiplier}) => {
-      // configuration
-      var linesCount = 100;
-      var margin = 30; // px
+    DOM: state$.map(controlView),
+    oCanvas: state$.debounce(500).flatMap(({sectorsCount, multiplier}) => {
+      return Rx.Observable.create(observer => {
+        // configuration
+        const canvasWidth = sources.oCanvas.width;
+        const centerPosition = canvasWidth / 2;
 
-      // todo: refactor code below
+        const margin = centerPosition / 10; // px
+        const radius = centerPosition - margin;
 
-      var radiusWithMargin = sources.oCanvas.width / 2;
-      var radius = radiusWithMargin - margin;
+        const linesCount = sectorsCount * 2;
 
-      var adjustToMainCircleCenter = adjustPointToCircleCenter(radiusWithMargin);
+        // clear canvas
+        observer.onNext(resetCanvas());
 
-      // numberToPointConverter :: Number -> Point
-      var numberToPointConverter = R.compose(adjustToMainCircleCenter, getPointByNumber(sectorsCount, radius));
+        // big circle
+        observer.onNext(createBigCircle(centerPosition, radius));
 
-      // draw basic numbers and labels
-      function createSectorLabel(number) {
-        const textPosition = getPointByNumber(sectorsCount, radius + margin - 10, number);
-        return [
-          // point number
-          text(R.merge({text: String(number)}, adjustToMainCircleCenter(textPosition))),
-          // small circle
-          ellipse(R.merge({radius: 3}, numberToPointConverter(number)))
-        ];
-      }
+        const lineNumberToPoint = createNumberToPointConverter(centerPosition, sectorsCount, radius);
+        const textNumberToPoint = createNumberToPointConverter(centerPosition, sectorsCount, radius + margin / 2);
 
-      function numberToLine(i) {
-        return line({
-          start: numberToPointConverter(i),
-          end: numberToPointConverter(i * multiplier)
-        });
-      }
-
-      return R.flatten([
-        //big circle
-        ellipse(R.merge({radius}, adjustToMainCircleCenter(point(0, 0)))),
         // labels on circle
-        R.range(0, sectorsCount).map(createSectorLabel),
+        R.range(0, sectorsCount).forEach(i => observer.onNext(createSectorLabel(lineNumberToPoint, textNumberToPoint, i)));
+
         // lines itself
-        R.range(0, linesCount).map(numberToLine),
-      ]);
+        R.range(0, linesCount).forEach(i => observer.onNext(createSectorLine(lineNumberToPoint, multiplier, i)));
+
+        observer.dispose();
+      });
     }),
   };
 }

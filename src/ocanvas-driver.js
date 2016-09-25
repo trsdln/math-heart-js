@@ -1,4 +1,3 @@
-import Rx from 'rx';
 import oCanvas from 'ocanvas';
 
 export function point(x, y) {
@@ -6,7 +5,10 @@ export function point(x, y) {
 }
 
 export function basicFigure(type, defaultProps, props) {
-  return Object.assign({type}, {props: defaultProps}, {props});
+  return {
+    type,
+    props: Object.assign(defaultProps, props)
+  };
 }
 
 export function ellipse(props) {
@@ -31,10 +33,21 @@ export function makeOCanvasDriver(elementSelector) {
     background: '#FFF'
   });
 
+  function drawFigure(figure) {
+    const figureInstance = currentCanvas.display[figure.type](figure.props);
+    currentCanvas.addChild(figureInstance);
+  }
+
   return function (canvasFigures$) {
-    canvasFigures$.subscribe(figure => {
-      const figureInstance = currentCanvas.display[figure.type](figure.props);
-      currentCanvas.addChild(figureInstance);
+    canvasFigures$.subscribe(figures => {
+      currentCanvas.reset();
+      if (figures instanceof Array) {
+        figures.forEach(drawFigure);
+      } else {
+        drawFigure(figures);
+      }
     });
+
+    return currentCanvas;
   };
 }

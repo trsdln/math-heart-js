@@ -4,7 +4,9 @@ import { html } from 'snabbdom-jsx';
 import { makeDOMDriver } from '@cycle/dom';
 import { run } from '@cycle/rx-run';
 
-import { point, line, makeOCanvasDriver } from './ocanvas-driver';
+import { point, line, text, ellipse, makeOCanvasDriver } from './ocanvas-driver';
+import { adjustPointToCircleCenter, getPointByNumber } from './math';
+
 
 // source: read parameters
 // logic: calculate all points
@@ -34,8 +36,8 @@ function main(sources) {
   const multiplier$ = sources.DOM.select('.multiplier').events('input').map(intValueByEvent);
 
   const state$ = Rx.Observable.combineLatest(
-    sectorsCount$.startWith(10),
-    multiplier$.startWith(5),
+    sectorsCount$.startWith(30),
+    multiplier$.startWith(2),
     (sectorsCount, multiplier) => ({
       sectorsCount,
       multiplier,
@@ -44,10 +46,48 @@ function main(sources) {
 
   return {
     DOM: state$.map(mainView),
-    oCanvas: state$.debounce(500).map(({sectorsCount, multiplier}) => line({
-      start: point(0, 0),
-      end: point(sectorsCount, multiplier)
-    }))
+    oCanvas: state$.debounce(500).map(({sectorsCount, multiplier}) => {
+      // configuration
+      var linesCount = 100;
+      var margin = 30; // px
+
+      // todo: refactor code below
+
+      var radiusWithMargin = sources.oCanvas.width / 2;
+      var radius = radiusWithMargin - margin;
+
+      var adjustToMainCircleCenter = adjustPointToCircleCenter(radiusWithMargin);
+
+      // numberToPointConverter :: Number -> Point
+      var numberToPointConverter = R.compose(adjustToMainCircleCenter, getPointByNumber(sectorsCount, radius));
+
+      // draw basic numbers and labels
+      function createSectorLabel(number) {
+        const textPosition = getPointByNumber(sectorsCount, radius + margin - 10, number);
+        return [
+          // point number
+          text(R.merge({text: String(number)}, adjustToMainCircleCenter(textPosition))),
+          // small circle
+          ellipse(R.merge({radius: 3}, numberToPointConverter(number)))
+        ];
+      }
+
+      function numberToLine(i) {
+        return line({
+          start: numberToPointConverter(i),
+          end: numberToPointConverter(i * multiplier)
+        });
+      }
+
+      return R.flatten([
+        //big circle
+        ellipse(R.merge({radius}, adjustToMainCircleCenter(point(0, 0)))),
+        // labels on circle
+        R.range(0, sectorsCount).map(createSectorLabel),
+        // lines itself
+        R.range(0, linesCount).map(numberToLine),
+      ]);
+    }),
   };
 }
 

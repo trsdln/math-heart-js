@@ -28,6 +28,7 @@
   "dependencies": {
     "@cycle/dom": "^12.2.5",
     "@cycle/rx-run": "^7.0.1",
+    "babel-core": "^6.24.1",
     "babel-plugin-transform-react-jsx": "^6.8.0",
     "ocanvas": "^2.8.5",
     "ramda": "^0.22.1",
